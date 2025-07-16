@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Codificador y Decodificador de Mensajes Invisibles</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 2em; background: #f4f4f4; }
+    textarea, input, button { font-size: 1em; width: 100%; margin-top: 1em; }
+    .output { background: #fff; padding: 1em; border: 1px solid #ccc; min-height: 2em; white-space: pre-wrap; }
+    .section { margin-top: 3em; }
+  </style>
+</head>
+<body>
+  <h1>🔍 Decodificador de Mensajes Invisibles</h1>
+  <p>Pega aquí el mensaje invisible recibido por WhatsApp:</p>
+  <textarea id="input" rows="4" placeholder="Pega aquí el mensaje invisible..."></textarea>
+  <button onclick="decode()">Decodificar</button>
+  <h2>📤 Texto decodificado:</h2>
+  <div class="output" id="output"></div>
+
+  <div class="section">
+    <h1>🛠️ Codificador de Texto Invisible</h1>
+    <p>Escribe el texto que deseas ocultar:</p>
+    <textarea id="textInput" rows="4" placeholder="Escribe tu mensaje visible aquí..."></textarea>
+    <button onclick="encode()">Codificar</button>
+    <button onclick="copyInvisible()">📋 Copiar mensaje invisible</button>
+    <h2>📥 Texto invisible generado:</h2>
+    <div class="output" id="invisibleOutput"></div>
+  </div>
+
+  <script>
+    // Usamos dos caracteres invisibles para representar binarios: 0 y 1
+    const INVISIBLE_ZERO = '\u200B'; // caracter invisible para "0"
+    const INVISIBLE_ONE = '\u200C';  // caracter invisible para "1"
+
+    function encode() {
+      const input = document.getElementById("textInput").value;
+      let binary = '';
+
+      for (let i = 0; i < input.length; i++) {
+        let binChar = input.charCodeAt(i).toString(2).padStart(16, '0');
+        binary += binChar;
+      }
+
+      // Convertimos binario a caracteres invisibles
+      let result = '';
+      for (let bit of binary) {
+        result += (bit === '0') ? INVISIBLE_ZERO : INVISIBLE_ONE;
+      }
+
+      document.getElementById("invisibleOutput").textContent = result;
+    }
+
+    function decode() {
+      const input = document.getElementById("input").value;
+      let binary = '';
+
+      for (let char of input) {
+        if (char === '\u200B') {
+          binary += '0';
+        } else if (char === '\u200C') {
+          binary += '1';
+        }
+      }
+
+      let decoded = '';
+      for (let i = 0; i < binary.length; i += 16) {
+        const binChunk = binary.slice(i, i + 16);
+        if (binChunk.length === 16) {
+          decoded += String.fromCharCode(parseInt(binChunk, 2));
+        }
+      }
+
+      document.getElementById("output").textContent = decoded;
+    }
+
+    function copyInvisible() {
+      const text = document.getElementById("invisibleOutput").textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Texto invisible copiado al portapapeles ✅");
+      }).catch(err => {
+        alert("Error al copiar: " + err);
+      });
+    }
+  </script>
+</body>
+</html>
+
+
